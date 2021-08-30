@@ -1,14 +1,14 @@
-public dynamic callCreateMetadataAccount()
-        {
-            var memo = "index poverty ridge turn appear devote goose senior boost aim autumn belt";
+ var memo = "index poverty ridge turn appear devote goose senior boost aim autumn belt";
 
             var wallet = new Wallet(memo);
 
             var ownerAccount = wallet.GetAccount(0);
 
-            var mintAccount = wallet.GetAccount(52);
+            var mintAccount = wallet.GetAccount(60);
 
-            byte[] by_metadata = Encoding.UTF8.GetBytes("metadata");
+            PublicKey a = new("metadata");
+
+            byte[] by_metadata = a.KeyBytes; //Encoding.UTF8.GetBytes("metadata");
 
             byte[] by_prodramid = MetadataProgram.ProgramIdKey.KeyBytes;
 
@@ -36,10 +36,14 @@ public dynamic callCreateMetadataAccount()
             var minBalanceForExemptionMint = rpcClient.GetMinimumBalanceForRentExemption(TokenProgram.MintAccountDataSize).Result;
 
             var creators = new List<Creator>();
+            var creator = new Creator();
+            creator.key = metadataKey;
+            creators.Add(creator);
+
             var metadata = new MetadataParameters();
             metadata.name = "Hello";
             metadata.symbol = "";
-            metadata.uri = "https://app.nftmagic.me/api/collection/punkmask/822";
+            metadata.uri = "...";
             metadata.creators = creators;
 
             var tx = new TransactionBuilder().
@@ -60,4 +64,3 @@ public dynamic callCreateMetadataAccount()
                 data = mintAccount + " " + firstSig.Reason
             };
             return o;
-        }

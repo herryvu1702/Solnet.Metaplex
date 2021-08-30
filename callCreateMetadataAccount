@@ -1,0 +1,63 @@
+public dynamic callCreateMetadataAccount()
+        {
+            var memo = "index poverty ridge turn appear devote goose senior boost aim autumn belt";
+
+            var wallet = new Wallet(memo);
+
+            var ownerAccount = wallet.GetAccount(0);
+
+            var mintAccount = wallet.GetAccount(52);
+
+            byte[] by_metadata = Encoding.UTF8.GetBytes("metadata");
+
+            byte[] by_prodramid = MetadataProgram.ProgramIdKey.KeyBytes;
+
+            byte[] by_mintid = mintAccount.PublicKey.KeyBytes;
+
+            var seed = new List<byte[]>();
+            seed.Add(by_metadata);
+            seed.Add(by_prodramid);
+            seed.Add(by_mintid);
+
+            IList<byte[]> _seed = seed;
+
+            byte[] byout;
+
+            AddressExtensions.TryCreateProgramAddress(_seed, MetadataProgram.ProgramIdKey, out byout);
+
+            var metadataKey = new PublicKey(byout);
+
+            var rpcClient = ClientFactory.GetClient(Cluster.DevNet);
+
+            var blockHash = rpcClient.GetRecentBlockHash();
+
+            var minBalanceForExemptionAcc = rpcClient.GetMinimumBalanceForRentExemption(TokenProgram.TokenAccountDataSize).Result;
+
+            var minBalanceForExemptionMint = rpcClient.GetMinimumBalanceForRentExemption(TokenProgram.MintAccountDataSize).Result;
+
+            var creators = new List<Creator>();
+            var metadata = new MetadataParameters();
+            metadata.name = "Hello";
+            metadata.symbol = "";
+            metadata.uri = "https://app.nftmagic.me/api/collection/punkmask/822";
+            metadata.creators = creators;
+
+            var tx = new TransactionBuilder().
+                SetRecentBlockHash(blockHash.Result.Value.Blockhash).
+                SetFeePayer(ownerAccount).
+                AddInstruction(MetadataProgram.CreateMetadataAccount(metadataKey, mintAccount.PublicKey, ownerAccount.PublicKey, ownerAccount.PublicKey, metadata, false)).
+                //Build(ownerAccount, metadataKey);
+                Build(ownerAccount);
+
+            var firstSig = rpcClient.SendTransaction(tx);
+
+            var o = new
+            {
+                status = true,
+                code = 0,
+                host = "",
+                msg = "Success",
+                data = mintAccount + " " + firstSig.Reason
+            };
+            return o;
+        }

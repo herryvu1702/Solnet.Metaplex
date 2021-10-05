@@ -1,4 +1,4 @@
- var memo = "index poverty ridge turn appear devote goose senior boost aim autumn belt";
+ var memo = "";
 
             var wallet = new Wallet(memo);
 
